@@ -35,9 +35,18 @@ python ../example/test_adr.py --base-url http://127.0.0.1:18081/api/v1 --validat
 
 ## 镜像发布与更新
 
-当前目录尚未初始化 Git，建议作为独立 GitHub 仓库根目录。GitHub Actions 的发布工作流等待明确目标仓库及发布授权后添加，目前没有配置自动上传。
+仓库为 https://github.com/chlxb/adr-gateway，工作流为 .github/workflows/build.yml。
 
-镜像发布后，在 .env 中将 ADR_GATEWAY_IMAGE 设置为获准的镜像地址和固定版本，再执行：
+- PR：运行 Linux 模拟测试并构建，不发布镜像。
+- 推送 main、develop、test/*：测试通过后发布分支标签与 sha-<完整提交号>。
+- 推送 v* 标签：校验该提交属于 main 历史后发布同名版本，例如 v0.1.0。
+- Actions 页面可手动运行。仅 chlxb/adr-gateway 仓库允许发布。
+
+目标固定为 ghcr.io/chlxb/adr-gateway。新 GHCR 包默认私有；已有包发布前检查 visibility，非 private 则失败，不会自动修改可见性。不要手动将包改为 Public。私有镜像权限独立于 Git 仓库可见性。
+
+Actions 使用自动提供的 GITHUB_TOKEN（packages:write），无需添加个人令牌到工作流。若已有包无法推送，请在该包 Settings → Manage Actions access 中授权 chlxb/adr-gateway 仓库。代码提交并推送后才触发线上工作流，本次配置本身不会上传镜像。
+
+首次发布 main 后，设置 ADR_GATEWAY_IMAGE=ghcr.io/chlxb/adr-gateway:main；正式部署建议使用已发布的固定版本（如 :v0.1.0）或 digest。第一次下载私有镜像前执行 docker login ghcr.io -u chlxb，在密码提示中输入带 read:packages 权限的 Personal Access Token (classic)，不要输入 GitHub 登录密码或提交令牌到代码仓库。然后执行：
 
 ```powershell
 docker compose pull
