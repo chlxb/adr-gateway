@@ -1,0 +1,38 @@
+# Python environments and generated packages
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+/build/
+/dist/
+
+# Local deployment settings; keep templates in version control
+.env
+.env.*
+!.env.example
+config/local.toml
+config/*.local.toml
+compose.override.yaml
+compose.override.yml
+
+# Runtime captures, downloaded artifacts and logs
+/var/
+/examples/downloads/
+*.log
+
+# Test and tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Local editor and operating system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

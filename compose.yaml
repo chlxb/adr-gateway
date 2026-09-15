@@ -1,0 +1,25 @@
+services:
+  adr-gateway:
+    image: ${ADR_GATEWAY_IMAGE:-adr-gateway:local}
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PORT:-18081}:18081"
+    environment:
+      RT_GATEWAY_ADR_BASE_URL: ${ADR_BASE_URL:-http://host.docker.internal:18080/api/v1}
+      RT_GATEWAY_ADR_SAVE_ROOT: ${ADR_SAVE_ROOT:?Set ADR_SAVE_ROOT to the ADR Windows output directory}
+      RT_GATEWAY_STORAGE_ROOT: /data
+      RT_GATEWAY_HOST: 0.0.0.0
+    volumes:
+      - type: bind
+        source: ${CAPTURE_HOST_DIR:?Set CAPTURE_HOST_DIR to the same output directory on the Docker host}
+        target: /data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

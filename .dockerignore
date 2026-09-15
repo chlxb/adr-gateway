@@ -1,0 +1,9 @@
+**
+!adr_gateway/
+!adr_gateway/*.py
+!config/
+!config/docker.toml
+!tests/
+!tests/*.py
+!requirements.lock
+!Dockerfile

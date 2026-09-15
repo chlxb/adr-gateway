@@ -1,0 +1,4 @@
+adr_base_url = "http://host.docker.internal:18080/api/v1"
+storage_root = "/data"
+host = "0.0.0.0"
+port = 18081
