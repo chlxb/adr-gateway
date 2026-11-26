@@ -7,7 +7,9 @@
 ```powershell
 Copy-Item .env.example .env
 New-Item -ItemType Directory -Force D:/ADR_Data
-docker compose up -d --build
+docker compose config --quiet
+docker compose pull
+docker compose up -d
 docker compose logs -f
 ```
 
@@ -17,6 +19,12 @@ docker compose logs -f
 - ADR_SAVE_ROOT：ADR 保存底片的 Windows 路径，如 D:/ADR_Data。
 - CAPTURE_HOST_DIR：挂载进容器的宿主机目录，与上面必须是同一物理目录。
 - GATEWAY_PORT：中转服务端口，默认 18081。
+- GATEWAY_BIND_IP：宿主机监听地址，默认 0.0.0.0；仅本机使用时设置 127.0.0.1。
+- ADR_GATEWAY_IMAGE：默认公开镜像 ghcr.io/chlxb/adr-gateway:main，可替换为固定版本或 digest。
+
+在 ADR 与 Docker Desktop 同机的 Windows 环境中，仅使用 compose.yaml 即可启动：ADR_SAVE_ROOT 和 CAPTURE_HOST_DIR 均默认 D:/ADR_Data，目录不存在时自动创建并挂载到 /data。默认连接 host.docker.internal:18080/api/v1，对外提供 18081 端口，不需要源码或本地构建。.env 是可选覆盖配置；换目录时两项要对应同一物理文件夹。其他操作系统或 ADR 不同机时需要调整路径和挂载。
+
+如需本地构建，执行 docker build --target runtime -t adr-gateway:local .，然后将 .env 中 ADR_GATEWAY_IMAGE 改为 adr-gateway:local，执行 docker compose up -d --pull never。不要对本地镜像执行 compose pull。
 
 ADR 保存 D:/ADR_Data/film.tif，容器挂载 D:/ADR_Data 到 /data，再通过 /data/film.tif 提供下载。savedFilePath 仍为 ADR 的 Windows 路径，接口和原有调用顺序不变。原始结果保留在宿主机，更新容器不会清除。
 
@@ -42,7 +50,7 @@ python ../example/test_adr.py --base-url http://127.0.0.1:18081/api/v1 --validat
 - 推送 v* 标签：校验该提交属于 main 历史后发布同名版本，例如 v0.1.0。
 - Actions 页面可手动运行。仅 chlxb/adr-gateway 仓库允许发布。
 
-目标固定为 ghcr.io/chlxb/adr-gateway。新 GHCR 包默认私有；已有包发布前检查 visibility，非 private 则失败，不会自动修改可见性。不要手动将包改为 Public。私有镜像权限独立于 Git 仓库可见性。
+目标固定为 ghcr.io/chlxb/adr-gateway。镜像现已由维护者改为公开，部署拉取不需要登录。此前工作流包含仅允许 private 的检查，如仍保留，该检查会阻止后续向公开包发布；这与 Compose 启动无关。
 
 Actions 使用自动提供的 GITHUB_TOKEN（packages:write），无需添加个人令牌到工作流。若已有包无法推送，请在该包 Settings → Manage Actions access 中授权 chlxb/adr-gateway 仓库。代码提交并推送后才触发线上工作流，本次配置本身不会上传镜像。
 

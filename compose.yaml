@@ -1,21 +1,26 @@
+# Keep a stable project name when this file is copied to a deployment directory.
+name: adr-gateway
+
 services:
   adr-gateway:
-    image: ${ADR_GATEWAY_IMAGE:-adr-gateway:local}
-    build:
-      context: .
-      target: runtime
+    image: ${ADR_GATEWAY_IMAGE:-ghcr.io/chlxb/adr-gateway:main}
     restart: unless-stopped
     ports:
-      - "${GATEWAY_PORT:-18081}:18081"
+      - "${GATEWAY_BIND_IP:-0.0.0.0}:${GATEWAY_PORT:-18081}:18081"
     environment:
       RT_GATEWAY_ADR_BASE_URL: ${ADR_BASE_URL:-http://host.docker.internal:18080/api/v1}
-      RT_GATEWAY_ADR_SAVE_ROOT: ${ADR_SAVE_ROOT:?Set ADR_SAVE_ROOT to the ADR Windows output directory}
+      # Windows path used by ADR. Must refer to the same folder as the bind source.
+      RT_GATEWAY_ADR_SAVE_ROOT: "${ADR_SAVE_ROOT:-D:/ADR_Data}"
       RT_GATEWAY_STORAGE_ROOT: /data
       RT_GATEWAY_HOST: 0.0.0.0
+      RT_GATEWAY_PORT: "18081"
     volumes:
       - type: bind
-        source: ${CAPTURE_HOST_DIR:?Set CAPTURE_HOST_DIR to the same output directory on the Docker host}
+        # Docker Desktop mounts this Windows folder as /data inside the container.
+        source: "${CAPTURE_HOST_DIR:-D:/ADR_Data}"
         target: /data
+        bind:
+          create_host_path: true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
