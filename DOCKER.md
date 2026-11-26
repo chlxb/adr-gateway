@@ -50,7 +50,7 @@ python ../example/test_adr.py --base-url http://127.0.0.1:18081/api/v1 --validat
 - 推送 v* 标签：校验该提交属于 main 历史后发布同名版本，例如 v0.1.0。
 - Actions 页面可手动运行。仅 chlxb/adr-gateway 仓库允许发布。
 
-目标固定为 ghcr.io/chlxb/adr-gateway。镜像现已由维护者改为公开，部署拉取不需要登录。此前工作流包含仅允许 private 的检查，如仍保留，该检查会阻止后续向公开包发布；这与 Compose 启动无关。
+目标固定为 ghcr.io/chlxb/adr-gateway。镜像现已由维护者改为公开，部署拉取不需要登录。工作流不限制包的可见性，也不修改可见性；发布仍需使用 GITHUB_TOKEN 登录 GHCR。
 
 Actions 使用自动提供的 GITHUB_TOKEN（packages:write），无需添加个人令牌到工作流。若已有包无法推送，请在该包 Settings → Manage Actions access 中授权 chlxb/adr-gateway 仓库。代码提交并推送后才触发线上工作流，本次配置本身不会上传镜像。
 

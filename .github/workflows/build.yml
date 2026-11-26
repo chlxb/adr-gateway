@@ -34,23 +34,7 @@ jobs:
       - name: Verify release tag belongs to main
         if: startsWith(github.ref, 'refs/tags/')
         run: git merge-base --is-ancestor HEAD origin/main
-      - name: Check private package visibility
-        if: github.event_name != 'pull_request' && github.repository == 'chlxb/adr-gateway'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              const { data } = await github.request('GET /users/{username}/packages/{package_type}/{package_name}', {
-                username: 'chlxb', package_type: 'container', package_name: 'adr-gateway'
-              });
-              if (data.visibility !== 'private') {
-                core.setFailed('Refusing to publish: ghcr.io/chlxb/adr-gateway must be private.');
-              }
-            } catch (error) {
-              if (error.status !== 404) throw error;
-              core.info('Package not found or not accessible. New GHCR packages default to private; an existing inaccessible package requires access before push.');
-            }
-      - name: Log in to private GHCR
+      - name: Log in to GHCR for publishing
         if: github.event_name != 'pull_request' && github.repository == 'chlxb/adr-gateway'
         uses: docker/login-action@v3
         with:
